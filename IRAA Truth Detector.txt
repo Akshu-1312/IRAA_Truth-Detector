@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IRAA Truth Detector | Combating Misinformation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
+  <style>
+    :root {
+      --primary: #6a1b9a;
+      --primary-light: #9c4dcc;
+      --primary-dark: #38006b;
+      --secondary: #e1bee7;
+      --accent: #42a5f5;
+      --text-dark: #333333;
+      --text-light: #ffffff;
+      --bg-light: #fafafa;
+      --bg-dark: #212121;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+    }
+
+    body.dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: var(--text-light);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+    }
+
+    .logo-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1rem;
+      position: relative;
+    }
+
+    nav a:after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      background: var(--text-light);
+      bottom: -5px;
+      left: 0;
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover:after {
+      width: 100%;
+    }
+
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: rgba(106, 27, 154, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    body.dark-mode .hero h1 {
+      color: var(--primary-light);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+
+    .animation-container {
+      width: 300px;
+      height: 300px;
+      margin: 2rem auto;
+    }
+
+    .search-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .search-container {
+      background-color: #2d2d2d;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-container h2 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    body.dark-mode .search-container h2 {
+      color: var(--primary-light);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode .search-input {
+      background-color: #3d3d3d;
+      color: white;
+      border-color: #555;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.2);
+    }
+
+    .search-button {
+      padding: 0.8rem 2.5rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(106, 27, 154, 0.3);
+    }
+
+    .search-button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(106, 27, 154, 0.4);
+    }
+
+    .result-card {
+      width: 100%;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+      display: none;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    body.dark-mode .result-card {
+      background-color: #2d2d2d;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .verdict {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      display: inline-block;
+    }
+
+    .verdict.true {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+    }
+
+    .verdict.mostly-true {
+      background-color: rgba(139, 195, 74, 0.1);
+      color: #8BC34A;
+      border: 1px solid #8BC34A;
+    }
+
+    .verdict.mixed {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #FFC107;
+      border: 1px solid #FFC107;
+    }
+
+    .verdict.mostly-false {
+      background-color: rgba(255, 152, 0, 0.1);
+      color: #FF9800;
+      border: 1px solid #FF9800;
+    }
+
+    .verdict.false {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: #F44336;
+      border: 1px solid #F44336;
+    }
+
+    .verdict.not-found {
+      background-color: rgba(158, 158, 158, 0.1);
+      color: #9E9E9E;
+      border: 1px solid #9E9E9E;
+    }
+
+    .claim-text {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .source-list {
+      margin-top: 1.5rem;
+    }
+
+    .source-item {
+      margin-bottom: 0.5rem;
+      padding: 0.8rem;
+      background-color: rgba(106, 27, 154, 0.05);
+      border-radius: 8px;
+    }
+
+    body.dark-mode .source-item {
+      background-color: rgba(156, 77, 204, 0.1);
+    }
+
+    .source-item a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    body.dark-mode .source-item a {
+      color: var(--primary-light);
+    }
+
+    .features {
+      padding: 5rem 2rem;
+      background-color: white;
+    }
+
+    body.dark-mode .features {
+      background-color: #2d2d2d;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: var(--primary);
+    }
+
+    body.dark-mode .features h2 {
+      color: var(--primary-light);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      padding: 2rem;
+      background-color: rgba(106, 27, 154, 0.05);
+      border-radius: 16px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    body.dark-mode .feature-card {
+      background-color: rgba(156, 77, 204, 0.1);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .feature-card:hover {
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    body.dark-mode .feature-icon {
+      color: var(--primary-light);
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    body.dark-mode .feature-title {
+      color: var(--primary-light);
+    }
+
+    footer {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: var(--text-light);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-light);
+      text-decoration: none;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .social-icon:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .copyright {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+      border: 4px solid rgba(106, 27, 154, 0.1);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .error-message {
+      color: #F44336;
+      margin-top: 1rem;
+      display: none;
+      text-align: center;
+    }
+
+    .trending-topics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .topic-tag {
+      background-color: rgba(106, 27, 154, 0.1);
+      color: var(--primary);
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .topic-tag:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    body.dark-mode .topic-tag {
+      background-color: rgba(156, 77, 204, 0.2);
+    }
+
+    body.dark-mode .topic-tag:hover {
+      background-color: var(--primary-light);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      nav ul {
+        gap: 1rem;
+      }
+
+      nav a {
+        font-size: 1rem;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .search-input, .search-button {
+        width: 100%;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <div id="logo-animation" class="logo"></div>
+      <div class="logo-text">IRAA Truth Detector</div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle">🌙</button>
+  </header>
+
+  <section class="hero" id="home">
+    <h1>Combat Misinformation With AI-Powered Fact Checking</h1>
+    <p>IRAA Truth Detector uses advanced artificial intelligence to analyze claims and provide verified information from trustworthy sources. Our mission is to help you navigate through the sea of misinformation on social media.</p>
+    <div id="hero-animation" class="animation-container"></div>
+    
+    <div class="search-container">
+      <h2>Verify Any Claim</h2>
+      <input type="text" id="search-input" class="search-input" placeholder="Enter a statement to fact-check...">
+      <div class="trending-topics">
+        <div class="topic-tag" data-query="vaccines covid">Vaccines</div>
+        <div class="topic-tag" data-query="climate change">Climate Change</div>
+        <div class="topic-tag" data-query="election fraud">Elections</div>
+        <div class="topic-tag" data-query="artificial intelligence risks">AI</div>
+       <div class="topic-tag" data-query="Is Education Important">Education</div>
+	<div class="topic-tag" data-query="Banking Risks">Banking</div>
+	<div class="topic-tag" data-query="Climate Change Facts">Climate</div>
+	<div class="topic-tag" data-query="Health Misinformation">Health</div>
+	<div class="topic-tag" data-query="Technology Trends">Technology</div>
+	<div class="topic-tag" data-query="Political Fact Checking">Politics</div>
+      </div>
+      <button id="search-button" class="search-button">Check Facts</button>
+      
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analyzing claim...</p>
+      </div>
+      
+      <div class="error-message" id="error-message">
+        Sorry, we couldn't process your request at this time. Please try again later.
+      </div>
+      
+      <div class="result-card" id="result-card">
+        <div id="verdict-container">
+          <span class="verdict mostly-true" id="verdict">Mostly True</span>
+        </div>
+        <p class="claim-text" id="claim-text">We checked your claim and found it to be mostly accurate based on current information.</p>
+        <div id="explanation" class="explanation">
+          <p>While the core statement is accurate, there are some nuances worth noting. Based on our analysis, we found supporting evidence from multiple credible sources.</p>
+        </div>
+        <div class="source-list" id="source-list">
+          <h3>Sources:</h3>
+          <div class="source-item">
+            <a href="#" target="_blank">Reuters Fact Check - March 20, 2025</a>
+          </div>
+          <div class="source-item">
+            <a href="#" target="_blank">World Health Organization - Official Statement</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2>How IRAA Truth Detector Works</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3 class="feature-title">Advanced AI Analysis</h3>
+        <p>Our technology uses state-of-the-art natural language processing to understand claims and evaluate their accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Multiple Source Verification</h3>
+        <p>We cross-reference information with hundreds of credible sources to provide the most accurate assessment.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Real-time Fact Checking</h3>
+        <p>Get instant verification of claims as you encounter them on social media or in conversation.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3 class="feature-title">Misinformation Alerts</h3>
+        <p>Enable notifications to be alerted when viral misinformation is spreading in your areas of interest.</p>
+      </div>
+      <div class="feature-card">
+  	<div class="feature-icon">🚀</div>
+  	<h3 class="feature-title">Future Enhancements</h3>
+  	<p>Stay ahead with our roadmap of upcoming AI improvements, community-driven fact-checking tools with Multi-Language Availability, and expanded source verification capabilities.</p>
+      </div>
+
+      <div class="feature-card">
+  	<div class="feature-icon">🧭</div>
+  	<h3 class="feature-title">Continue Your Journey</h3>
+  	<p>Explore our learning resources, join verification challenges, and connect with a community dedicated to promoting information integrity.</p>
+     </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="footer-content">
+      <div class="footer-logo">IRAA Truth Detector</div>
+      <div class="footer-links">
+        <a href="#">About Us</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social-icon">🐦</a>
+        <a href="#" class="social-icon">📘</a>
+        <a href="#" class="social-icon">📸</a>
+        <a href="#" class="social-icon">🎥</a>
+      </div>
+      <p class="copyright">&copy; 2025 IRAA Truth Detector - Combating Misinformation Worldwide</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dark Mode Toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      const body = document.body;
+      
+      if (localStorage.getItem('darkMode') === 'true') {
+        body.classList.add('dark-mode');
+        themeToggle.textContent = '☀️';
+      }
+      
+      themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        themeToggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode', isDark);
+      });
+
+      // Lottie Animations - Using fallback if animation fails to load
+      try {
+        // Logo animation fallback
+        const logoContainer = document.getElementById('logo-animation');
+        let logoAnimation = null;
+        
+        try {
+          logoAnimation = lottie.loadAnimation({
+            container: logoContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets9.lottiefiles.com/packages/lf20_azkgpoqi.json'
+          });
+        } catch (error) {
+          console.error('Logo animation loading error:', error);
+          logoContainer.innerHTML = '<div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;">IRAA</div>';
+        }
+        
+        // Hero animation fallback
+        const heroContainer = document.getElementById('hero-animation');
+        let heroAnimation = null;
+        
+        try {
+          heroAnimation = lottie.loadAnimation({
+            container: heroContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets2.lottiefiles.com/private_files/lf30_P8OW7S.json'
+          });
+        } catch (error) {
+          console.error('Hero animation loading error:', error);
+          heroContainer.innerHTML = '<div style="width:300px;height:300px;background:rgba(106,27,154,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:5rem;filter:drop-shadow(0 0 10px rgba(106,27,154,0.5));">🔍</span></div>';
+        }
+      } catch (error) {
+        console.error('Animation loading error:', error);
+      }
+      
+     // Lottie Animations with fallbacks
+      try {
+        const logoContainer = document.getElementById('logo-animation');
+        try {
+          lottie.loadAnimation({
+            container: logoContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets9.lottiefiles.com/packages/lf20_azkgpoqi.json'
+          });
+        } catch (error) {
+          logoContainer.innerHTML = '<div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;">IRAA</div>';
+        }
+        
+        const heroContainer = document.getElementById('hero-animation');
+        try {
+          lottie.loadAnimation({
+            container: heroContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets2.lottiefiles.com/private_files/lf30_P8OW7S.json'
+          });
+        } catch (error) {
+          heroContainer.innerHTML = '<div style="width:300px;height:300px;background:rgba(106,27,154,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:5rem;">🔍</span></div>';
+        }
+      } catch (error) {
+        console.error('Animation error:', error);
+      }
+      
+      // Fact Check Functionality
+      const searchInput = document.getElementById('search-input');
+      const searchButton = document.getElementById('search-button');
+      const loading = document.getElementById('loading');
+      const resultCard = document.getElementById('result-card');
+      const errorMessage = document.getElementById('error-message');
+      const verdict = document.getElementById('verdict');
+      const claimText = document.getElementById('claim-text');
+      const explanation = document.getElementById('explanation');
+      const sourceList = document.getElementById('source-list');
+      
+      // Set up topic tag clicks
+      document.querySelectorAll('.topic-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+          searchInput.value = this.getAttribute('data-query');
+          handleFactCheck();
+        });
+      });
+      
+      // Handle search button click
+      searchButton.addEventListener('click', handleFactCheck);
+      
+      // Handle enter key in search input
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleFactCheck();
+      });
+
+      function displayFactCheckResults(data, query) {
+        // Update verdict class and text
+        verdict.className = 'verdict ' + data.verdict.toLowerCase().replace(/\s+/g, '-');
+        verdict.textContent = data.verdict;
+        
+        // Update claim text
+        claimText.textContent = data.claim || `Regarding: "${query}"`;
+        
+        // Update explanation
+        explanation.innerHTML = `<p>${data.explanation}</p>`;
+        
+        // Update sources
+        let sourcesHTML = '<h3>Sources:</h3>';
+        if (data.sources && data.sources.length > 0) {
+          data.sources.forEach(source => {
+            sourcesHTML += `
+              <div class="source-item">
+                <a href="${source.url}" target="_blank">${source.name}</a>
+              </div>`;
+          });
+        } else {
+          sourcesHTML += '<p>No specific sources available for this claim.</p>';
+        }
+        sourceList.innerHTML = sourcesHTML;
+        
+        // Show result card
+        resultCard.style.display = 'block';
+      }
+      
+      function handleFactCheck() {
+        const query = searchInput.value.trim();
+        
+        if (query.length === 0) {
+          errorMessage.textContent = "Please enter a claim to fact check.";
+          errorMessage.style.display = "block";
+          return;
+        }
+        
+        // Reset UI
+        errorMessage.style.display = "none";
+        resultCard.style.display = "none";
+        loading.style.display = "block";
+        
+        // Simulate API call with timeout
+        setTimeout(() => {
+          const lowerQuery = query.toLowerCase();
+          let result;
+          
+          if (lowerQuery.includes('vaccine') || lowerQuery.includes('covid')) {
+            result = {
+              verdict: "True",
+              claim: "COVID-19 vaccines have undergone rigorous testing and are proven safe and effective.",
+              explanation: "Multiple clinical trials and real-world studies have consistently shown that COVID-19 vaccines are safe and effective at preventing severe illness.",
+              sources: [
+                { name: "World Health Organization", url: "#" },
+                { name: "CDC", url: "#" }
+              ]
+            };
+          } else if (lowerQuery.includes('climate') || lowerQuery.includes('global warming')) {
+            result = {
+              verdict: "True",
+              claim: "Human activities are the primary driver of observed climate change since the mid-20th century.",
+              explanation: "Scientific evidence for warming of the climate system is unequivocal, primarily resulting from human activities.",
+              sources: [
+                { name: "NASA", url: "#" },
+                { name: "IPCC", url: "#" }
+              ]
+            };
+ 	  } else if (lowerQuery.includes('education') || lowerQuery.includes('is education important')) {
+    	    result = {
+              verdict: "True",
+              claim: "Education is a critical factor in individual and societal development.",
+              explanation: "Research consistently shows that education improves economic outcomes, health, social mobility, and overall quality of life at both individual and societal levels.",
+              sources: [
+            	{ name: "UNESCO", url: "#" },
+            	{ name: "OECD", url: "#" },
+            	{ name: "World Bank", url: "#" }
+       	      ]
+            };
+          } else if (lowerQuery.includes('banking') || lowerQuery.includes('banking risks')) {
+            result = {
+              verdict: "Complex",
+              claim: "Banking systems face various risks that require regulation and oversight.",
+              explanation: "While modern banking systems have multiple safeguards, they still face liquidity, credit, operational, and systemic risks that require ongoing monitoring, regulation, and risk management.",
+              sources: [
+            	{ name: "Federal Reserve", url: "#" },
+            	{ name: "IMF", url: "#" },
+            	{ name: "BIS", url: "#" }
+              ]
+            };
+          } else if (lowerQuery.includes('climate') || lowerQuery.includes('climate change facts')) {
+            result = {
+              verdict: "True",
+              claim: "Human activities are the primary driver of observed climate change since the mid-20th century.",
+              explanation: "Scientific evidence for warming of the climate system is unequivocal, primarily resulting from human activities such as fossil fuel burning and deforestation.",
+              sources: [
+            	{ name: "NASA", url: "#" },
+            	{ name: "IPCC", url: "#" },
+            	{ name: "NOAA", url: "#" }
+               ]	
+             };
+           } else if (lowerQuery.includes('health') || lowerQuery.includes('health misinformation')) {
+            result = {
+              verdict: "Complex",
+              claim: "Health misinformation is widespread and can have serious consequences.",
+              explanation: "False or misleading health information spreads rapidly online and can lead to harmful behaviors, treatment delays, and public health challenges.",
+              sources: [
+            	{ name: "WHO", url: "#" },
+            	{ name: "CDC", url: "#" },
+            	{ name: "NIH", url: "#" }
+               ]
+             };
+           } else if (lowerQuery.includes('technology') || lowerQuery.includes('technology trends')) {
+             result = {
+               verdict: " True- Rapid Growth",
+               claim: "Technology is advancing rapidly with major implications for society.",
+               explanation: "Emerging technologies like AI, quantum computing, and biotechnology are developing at unprecedented rates, offering both opportunities and challenges that require thoughtful governance.",
+               sources: [
+            	{ name: "MIT Technology Review", url: "#" },
+            	{ name: "World Economic Forum", url: "#" },
+            	{ name: "IEEE", url: "#" }
+               ]
+             };
+           } else if (lowerQuery.includes('politics') || lowerQuery.includes('political fact checking')) {
+             result = {
+               verdict: "Complex",
+               claim: "Political statements require careful fact-checking from multiple sources.",
+               explanation: "Political claims often contain partial truths, require context, or may be misleading without being technically false, necessitating thorough analysis from diverse, credible sources.",
+               sources: [
+            	{ name: "PolitiFact", url: "#" },
+            	{ name: "FactCheck.org", url: "#" },
+            	{ name: "Reuters Fact Check", url: "#" }
+               ]
+             };
+          } else {
+            // Generic response for other queries
+            const verdicts = ["True", "Mostly True", "Mixed", "Mostly False", "False"];
+            const randomVerdict = verdicts[Math.floor(Math.random() * verdicts.length)];
+            
+            const explanations = {
+              "True": "Our analysis found strong evidence supporting this claim from multiple reliable sources.",
+              "Mostly True": "The core claim is accurate, though there are some minor details that warrant clarification.",
+              "Mixed": "This claim contains elements of both truth and falsehood, or lacks important context.",
+              "Mostly False": "While there may be a small element of truth, this claim is predominantly inaccurate.",
+              "False": "Our analysis found no credible evidence supporting this claim."
+            };
+            
+            result = {
+              verdict: randomVerdict,
+              claim: `Regarding: "${query}"`,
+              explanation: explanations[randomVerdict],
+              sources: [
+                { name: "Fact Check Database", url: "#" },
+                { name: "Research Institute", url: "#" }
+              ]
+            };
+          }
+          
+          loading.style.display = "none";
+          displayFactCheckResults(result, query);
+        }, 1500);
+      }
+    });
+  </script>
+</body>
+</html>
